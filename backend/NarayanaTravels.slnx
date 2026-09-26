@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="NarayanaTravels.Api/NarayanaTravels.Api.csproj" />
+  <Project Path="NarayanaTravels.Core/NarayanaTravels.Core.csproj" />
+  <Project Path="NarayanaTravels.Infrastructure/NarayanaTravels.Infrastructure.csproj" />
+</Solution>
