@@ -167,4 +167,28 @@ public class BillsController : ControllerBase
 
         return Ok(summary);
     }
+
+    [HttpGet("dashboard/revenue-trend")]
+    public async Task<ActionResult<IEnumerable<RevenuePointDto>>> GetRevenueTrend([FromQuery] int days = 30)
+    {
+        days = Math.Clamp(days, 1, 365);
+        var startDate = DateTime.UtcNow.Date.AddDays(-(days - 1));
+
+        var bills = await _db.Bills
+            .Where(b => b.CreatedAt.Date >= startDate)
+            .Select(b => new { b.CreatedAt, b.GrandTotal })
+            .ToListAsync();
+
+        var byDay = bills
+            .GroupBy(b => b.CreatedAt.Date)
+            .ToDictionary(g => g.Key, g => g.Sum(b => b.GrandTotal));
+
+        var points = new List<RevenuePointDto>();
+        for (var d = startDate; d <= DateTime.UtcNow.Date; d = d.AddDays(1))
+        {
+            points.Add(new RevenuePointDto { Date = d, Revenue = byDay.TryGetValue(d, out var sum) ? sum : 0 });
+        }
+
+        return Ok(points);
+    }
 }

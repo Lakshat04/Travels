@@ -79,6 +79,11 @@ export interface DashboardSummary {
   recentBills: BillListItem[];
 }
 
+export interface RevenuePoint {
+  date: string;
+  revenue: number;
+}
+
 export interface Customer {
   id: number;
   name: string;

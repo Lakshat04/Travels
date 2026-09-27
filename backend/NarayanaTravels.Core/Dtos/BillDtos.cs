@@ -115,3 +115,9 @@ public class DashboardSummaryDto
     public int TotalCustomers { get; set; }
     public List<BillListItemDto> RecentBills { get; set; } = new();
 }
+
+public class RevenuePointDto
+{
+    public DateTime Date { get; set; }
+    public decimal Revenue { get; set; }
+}

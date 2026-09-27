@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Bill, BillCreateUpdateDto, BillListItem, DashboardSummary, PaymentStatus } from '../types';
+import type { Bill, BillCreateUpdateDto, BillListItem, DashboardSummary, PaymentStatus, RevenuePoint } from '../types';
 
 export interface BillFilters {
   search?: string;
@@ -23,6 +23,9 @@ export const billsApi = {
   remove: (id: number) => api.delete(`/bills/${id}`),
 
   dashboard: () => api.get<DashboardSummary>('/bills/dashboard/summary').then((r) => r.data),
+
+  revenueTrend: (days = 30) =>
+    api.get<RevenuePoint[]>('/bills/dashboard/revenue-trend', { params: { days } }).then((r) => r.data),
 
   pdfUrl: (id: number) => `/api/bills/${id}/pdf`,
 
