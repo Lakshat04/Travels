@@ -209,16 +209,12 @@ public class InvoicePdfService
                 table.ColumnsDefinition(c =>
                 {
                     c.RelativeColumn(3);
-                    c.RelativeColumn(1);
-                    c.RelativeColumn(1);
-                    c.RelativeColumn(1);
-                    c.RelativeColumn(1);
                     c.RelativeColumn(1.2f);
                 });
 
                 table.Header(h =>
                 {
-                    foreach (var head in new[] { "Description", "Qty", "Rate", "Disc.", "Tax%", "Amount" })
+                    foreach (var head in new[] { "Description", "Amount" })
                     {
                         h.Cell().Background(RoyalBlue).Padding(6).Text(head).FontColor(Colors.White).Bold().FontSize(9);
                     }
@@ -227,10 +223,6 @@ public class InvoicePdfService
                 foreach (var item in bill.Items)
                 {
                     table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(item.Description);
-                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).AlignRight().Text(item.Quantity.ToString("0.##"));
-                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).AlignRight().Text(item.Rate.ToString("0.00"));
-                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).AlignRight().Text(item.Discount.ToString("0.00"));
-                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).AlignRight().Text(item.Tax.ToString("0.0") + "%");
                     table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(6).AlignRight().Text(item.Amount.ToString("0.00"));
                 }
             });

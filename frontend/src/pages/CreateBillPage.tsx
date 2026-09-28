@@ -409,27 +409,16 @@ export function CreateBillPage() {
                     </button>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-3">
-                    <div>
-                      <label className="label">Qty</label>
-                      <input type="number" min={0} className="input-field" value={item.quantity} onChange={(e) => updateItem(idx, { quantity: Number(e.target.value) })} />
-                    </div>
-                    <div>
-                      <label className="label">Rate</label>
-                      <input type="number" min={0} className="input-field" value={item.rate} onChange={(e) => updateItem(idx, { rate: Number(e.target.value) })} />
-                    </div>
-                    <div>
-                      <label className="label">Discount</label>
-                      <input type="number" min={0} className="input-field" value={item.discount} onChange={(e) => updateItem(idx, { discount: Number(e.target.value) })} />
-                    </div>
-                    <div>
-                      <label className="label">Tax %</label>
-                      <input type="number" min={0} className="input-field" value={item.tax} onChange={(e) => updateItem(idx, { tax: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="label">Amount</label>
-                      <div className="input-field bg-white font-semibold text-[var(--royal)]">{calcItemAmount(item).toFixed(2)}</div>
-                    </div>
+                  <div className="mt-3">
+                    <label className="label">Amount</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="input-field"
+                      placeholder="0.00"
+                      value={item.rate}
+                      onChange={(e) => updateItem(idx, { quantity: 1, rate: Number(e.target.value), discount: 0, tax: 0 })}
+                    />
                   </div>
                 </div>
               ))}

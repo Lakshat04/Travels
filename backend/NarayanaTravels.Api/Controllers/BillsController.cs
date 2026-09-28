@@ -169,8 +169,34 @@ public class BillsController : ControllerBase
     }
 
     [HttpGet("dashboard/revenue-trend")]
-    public async Task<ActionResult<IEnumerable<RevenuePointDto>>> GetRevenueTrend([FromQuery] int days = 30)
+    public async Task<ActionResult<IEnumerable<RevenuePointDto>>> GetRevenueTrend([FromQuery] int days = 30, [FromQuery] int? year = null)
     {
+        if (year.HasValue)
+        {
+            var y = Math.Clamp(year.Value, 2000, 2100);
+            var yearStart = new DateTime(y, 1, 1);
+            var yearEnd = new DateTime(y, 12, 31);
+
+            var yearBills = await _db.Bills
+                .Where(b => b.CreatedAt.Date >= yearStart && b.CreatedAt.Date <= yearEnd)
+                .Select(b => new { b.CreatedAt, b.GrandTotal })
+                .ToListAsync();
+
+            var byMonth = yearBills
+                .GroupBy(b => b.CreatedAt.Month)
+                .ToDictionary(g => g.Key, g => g.Sum(b => b.GrandTotal));
+
+            var monthlyPoints = Enumerable.Range(1, 12)
+                .Select(m => new RevenuePointDto
+                {
+                    Date = new DateTime(y, m, 1),
+                    Revenue = byMonth.TryGetValue(m, out var sum) ? sum : 0
+                })
+                .ToList();
+
+            return Ok(monthlyPoints);
+        }
+
         days = Math.Clamp(days, 1, 365);
         var startDate = DateTime.UtcNow.Date.AddDays(-(days - 1));
 
@@ -190,5 +216,19 @@ public class BillsController : ControllerBase
         }
 
         return Ok(points);
+    }
+
+    [HttpGet("dashboard/bill-years")]
+    public async Task<ActionResult<IEnumerable<int>>> GetBillYears()
+    {
+        var years = await _db.Bills
+            .Select(b => b.CreatedAt.Year)
+            .Distinct()
+            .OrderByDescending(y => y)
+            .ToListAsync();
+
+        if (years.Count == 0) years.Add(DateTime.UtcNow.Year);
+
+        return Ok(years);
     }
 }

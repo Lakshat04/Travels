@@ -96,23 +96,15 @@ export function InvoicePreview({ data }: { data: InvoicePreviewData }) {
               <thead>
                 <tr className="bg-[var(--royal)] text-white text-left">
                   <th className="px-3 py-2">Description</th>
-                  <th className="px-3 py-2 text-right">Qty</th>
-                  <th className="px-3 py-2 text-right">Rate</th>
-                  <th className="px-3 py-2 text-right">Disc.</th>
-                  <th className="px-3 py-2 text-right">Tax%</th>
                   <th className="px-3 py-2 text-right">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.length === 0 ? (
-                  <tr><td colSpan={6} className="px-3 py-4 text-center text-[var(--grey-400)]">No items added yet</td></tr>
+                  <tr><td colSpan={2} className="px-3 py-4 text-center text-[var(--grey-400)]">No items added yet</td></tr>
                 ) : data.items.map((item, i) => (
                   <tr key={i} className="border-t border-[var(--grey-100)]">
                     <td className="px-3 py-2">{item.description || '—'}</td>
-                    <td className="px-3 py-2 text-right">{item.quantity}</td>
-                    <td className="px-3 py-2 text-right">{item.rate.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right">{item.discount.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right">{item.tax}%</td>
                     <td className="px-3 py-2 text-right font-medium">{item.amount.toFixed(2)}</td>
                   </tr>
                 ))}

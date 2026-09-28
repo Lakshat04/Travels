@@ -79,16 +79,26 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [chartType, setChartType] = useState<'area' | 'bar'>('area');
-  const [period, setPeriod] = useState<'week' | 'month'>('month');
+  const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
+  const [years, setYears] = useState<number[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const navigate = useNavigate();
 
   useEffect(() => {
     billsApi.dashboard().then(setData).finally(() => setLoading(false));
+    billsApi.billYears().then((ys) => {
+      setYears(ys);
+      if (ys.length > 0) setSelectedYear(ys[0]);
+    });
   }, []);
 
   useEffect(() => {
-    billsApi.revenueTrend(period === 'week' ? 7 : 30).then(setTrend);
-  }, [period]);
+    if (period === 'year') {
+      billsApi.revenueTrend({ year: selectedYear }).then(setTrend);
+    } else {
+      billsApi.revenueTrend({ days: period === 'week' ? 7 : 30 }).then(setTrend);
+    }
+  }, [period, selectedYear]);
 
   const handleDownload = async (id: number, invoiceNumber: string) => {
     setDownloadingId(id);
@@ -113,7 +123,9 @@ export function DashboardPage() {
   ];
 
   const chartData = trend.map((p) => ({
-    date: new Date(p.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+    date: period === 'year'
+      ? new Date(p.date).toLocaleDateString('en-IN', { month: 'short' })
+      : new Date(p.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
     revenue: p.revenue,
   }));
 
@@ -151,17 +163,31 @@ export function DashboardPage() {
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <div>
               <h3 className="font-semibold text-[var(--ink)]">Revenue Overview</h3>
-              <p className="text-xs text-[var(--grey-600)]">{period === 'week' ? 'Last 7 days' : 'Last 30 days'}</p>
+              <p className="text-xs text-[var(--grey-600)]">
+                {period === 'week' ? 'Last 7 days' : period === 'month' ? 'Last 30 days' : `Jan – Dec ${selectedYear}`}
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <select
                 value={period}
-                onChange={(e) => setPeriod(e.target.value as 'week' | 'month')}
+                onChange={(e) => setPeriod(e.target.value as 'week' | 'month' | 'year')}
                 className="text-xs font-medium border border-[var(--grey-200)] rounded-lg px-2.5 py-1.5 bg-white text-[var(--ink)] cursor-pointer"
               >
                 <option value="week">Weekly</option>
                 <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
               </select>
+              {period === 'year' && (
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  className="text-xs font-medium border border-[var(--grey-200)] rounded-lg px-2.5 py-1.5 bg-white text-[var(--ink)] cursor-pointer"
+                >
+                  {years.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              )}
               <select
                 value={chartType}
                 onChange={(e) => setChartType(e.target.value as 'area' | 'bar')}
@@ -186,7 +212,7 @@ export function DashboardPage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grey-100)" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--grey-600)' }} axisLine={false} tickLine={false} interval={period === 'week' ? 0 : 'preserveStartEnd'} />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--grey-600)' }} axisLine={false} tickLine={false} interval={period === 'month' ? 'preserveStartEnd' : 0} />
                     <YAxis tick={{ fontSize: 11, fill: 'var(--grey-600)' }} axisLine={false} tickLine={false} tickFormatter={formatShortCurrency} width={44} tickCount={5} allowDecimals={false} />
                     <Tooltip formatter={(v) => formatCurrency(Number(v))} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid var(--grey-200)' }} />
                     <Area type="monotone" dataKey="revenue" stroke="var(--royal)" strokeWidth={2.5} fill="url(#revenueFill)" dot={{ r: 3, fill: 'var(--royal)', strokeWidth: 0 }} activeDot={{ r: 5 }} />
@@ -194,7 +220,7 @@ export function DashboardPage() {
                 ) : (
                   <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grey-100)" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--grey-600)' }} axisLine={false} tickLine={false} interval={period === 'week' ? 0 : 'preserveStartEnd'} />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--grey-600)' }} axisLine={false} tickLine={false} interval={period === 'month' ? 'preserveStartEnd' : 0} />
                     <YAxis tick={{ fontSize: 11, fill: 'var(--grey-600)' }} axisLine={false} tickLine={false} tickFormatter={formatShortCurrency} width={44} tickCount={5} allowDecimals={false} />
                     <Tooltip formatter={(v) => formatCurrency(Number(v))} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid var(--grey-200)' }} cursor={{ fill: 'var(--grey-50)' }} />
                     <Bar dataKey="revenue" fill="var(--royal)" radius={[4, 4, 0, 0]} maxBarSize={28} />

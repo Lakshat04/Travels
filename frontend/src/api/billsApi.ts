@@ -24,8 +24,10 @@ export const billsApi = {
 
   dashboard: () => api.get<DashboardSummary>('/bills/dashboard/summary').then((r) => r.data),
 
-  revenueTrend: (days = 30) =>
-    api.get<RevenuePoint[]>('/bills/dashboard/revenue-trend', { params: { days } }).then((r) => r.data),
+  revenueTrend: (params: { days?: number; year?: number }) =>
+    api.get<RevenuePoint[]>('/bills/dashboard/revenue-trend', { params }).then((r) => r.data),
+
+  billYears: () => api.get<number[]>('/bills/dashboard/bill-years').then((r) => r.data),
 
   pdfUrl: (id: number) => `/api/bills/${id}/pdf`,
 
